@@ -17,7 +17,7 @@
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "intel-lpmd";
-  version = "0.0.8";
+  version = "0.0.9";
 
   src = fetchFromGitHub {
     owner = "intel";
@@ -41,17 +41,26 @@ stdenv.mkDerivation (finalAttrs: {
   postPatch = ''
     substituteInPlace "data/org.freedesktop.intel_lpmd.service.in" \
       --replace-fail "/bin/false" "${lib.getExe' coreutils "false"}"
-
-    substituteInPlace "src/lpmd_dbus_server.c" \
-      --replace-fail "src/intel_lpmd_dbus_interface.xml" "${placeholder "out"}/share/dbus-1/interfaces/org.freedesktop.intel_lpmd.xml"
   '';
+
+  makeFlags = [
+    "lpmd_rundir=/var/run/intel_lpmd"
+    # Lookg for configs in etc directory
+    "lpmd_confdir=/etc/intel_lpmd"
+  ];
 
   configureFlags = [
     ''--with-dbus-sys-dir="${placeholder "out"}/share/dbus-1/system.d"''
-    ''--with-systemdsystemunitdir="${placeholder "out"}/lib/systemd/system"''
+    ''--without-systemdsystemunitdir''
+  ];
+
+  installFlags = [
+    # Install default configs here, they will not be used
+    "lpmd_confdir=${placeholder "out"}/etc/intel_lpmd"
   ];
 
   postInstall = ''
+    rm $out/etc/intel_lpmd/*
     install -Dm644 src/intel_lpmd_dbus_interface.xml $out/share/dbus-1/interfaces/org.freedesktop.intel_lpmd.xml
   '';
 

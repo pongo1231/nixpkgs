@@ -26,11 +26,9 @@ let
           <ITMTState>${perStateOptional attr.ITMTState}</ITMTState>
           <IRQMigrate>${perStateOptional attr.IRQMigrate}</IRQMigrate>
           <MinPollInterval>${attr.MinPollInterval}</MinPollInterval>
-          ${
-            lib.optionalString (
-              attr.MaxPollInterval != null
-            ) "<MaxPollInterval>${attr.MaxPollInterval}</MaxPollInterval>"
-          }
+          ${lib.optionalString (
+            attr.MaxPollInterval != null
+          ) "<MaxPollInterval>${attr.MaxPollInterval}</MaxPollInterval>"}
           <PollIntervalIncrement>${perStateOptional attr.PollIntervalIncrement}</PollIntervalIncrement>
         </State>
       '')
@@ -49,35 +47,31 @@ let
       '')
     );
 
-  xmlGenerator =
-    cfg:
-    lib.concatStringsSep "\n" (
-      lib.forEach cfg (attr: ''
-        <?xml version="1.0"?>
-        <Configuration>
-          ${
-            lib.optionalString (attr.lp_mode_cpus != null) "<lp_mode_cpus>${attr.lp_mode_cpus}</lp_mode_cpus>"
-          }
-          <Mode>${attr.Mode}</Mode>
-          <PerformanceDef>${attr.PerformanceDef}</PerformanceDef>
-          <BalancedDef>${attr.BalancedDef}</BalancedDef>
-          <PowersaverDef>${attr.PowersaverDef}</PowersaverDef>
-          <HfiLpmEnable>${xmlOptionalBool attr.HfiLpmEable}</HfiLpmEnable>
-          <HfiSuvEnable>${xmlOptionalBool attr.HfiSuvEnable}</HfiSuvEnable>
-          <WLTHintEnable>${xmlOptionalBool attr.WLTHintEnable}</WLTHintEnable>
-          <WLTProxyEnable>${xmlOptionalBool attr.WLTProxyEnable}</WLTProxyEnable>
-          <util_entry_threshold>${attr.util_entry_threshold}</util_entry_threshold>
-          <util_exit_threshold>${attr.util_exit_threshold}</util_exit_threshold>
-          <EntryDelayMS>${attr.EntryDelayMS}</EntryDelayMS>
-          <ExitDelayMS>${attr.ExitDelayMS}</ExitDelayMS>
-          <EntryHystMS>${attr.EntryHystMS}</EntryHystMS>
-          <ExitHystMS>${attr.ExitHystMS}</ExitHystMS>
-          ${lib.optionalString (attr.lp_mode_epp != null) "<lp_mode_epp>${attr.lp_mode_epp}</lp_mode_epp>"}
-          <IgnoreITMT>${xmlOptionalBool attr.IgnoreITMT}</IgnoreITMT>
-          ${statesGenerator attr.States}
-        </Configuration>
-      '')
-    );
+  xmlGenerator = attr: ''
+    <?xml version="1.0"?>
+    <Configuration>
+      ${lib.optionalString (
+        attr.lp_mode_cpus != null
+      ) "<lp_mode_cpus>${attr.lp_mode_cpus}</lp_mode_cpus>"}
+      <Mode>${attr.Mode}</Mode>
+      <PerformanceDef>${attr.PerformanceDef}</PerformanceDef>
+      <BalancedDef>${attr.BalancedDef}</BalancedDef>
+      <PowersaverDef>${attr.PowersaverDef}</PowersaverDef>
+      <HfiLpmEnable>${xmlOptionalBool attr.HfiLpmEnable}</HfiLpmEnable>
+      <HfiSuvEnable>${xmlOptionalBool attr.HfiSuvEnable}</HfiSuvEnable>
+      <WLTHintEnable>${xmlOptionalBool attr.WLTHintEnable}</WLTHintEnable>
+      <WLTProxyEnable>${xmlOptionalBool attr.WLTProxyEnable}</WLTProxyEnable>
+      <util_entry_threshold>${builtins.toString attr.util_entry_threshold}</util_entry_threshold>
+      <util_exit_threshold>${builtins.toString attr.util_exit_threshold}</util_exit_threshold>
+      <EntryDelayMS>${builtins.toString attr.EntryDelayMS}</EntryDelayMS>
+      <ExitDelayMS>${builtins.toString attr.ExitDelayMS}</ExitDelayMS>
+      <EntryHystMS>${builtins.toString attr.EntryHystMS}</EntryHystMS>
+      <ExitHystMS>${builtins.toString attr.ExitHystMS}</ExitHystMS>
+      ${lib.optionalString (attr.lp_mode_epp != null) "<lp_mode_epp>${attr.lp_mode_epp}</lp_mode_epp>"}
+      <IgnoreITMT>${xmlOptionalBool attr.IgnoreITMT}</IgnoreITMT>
+      ${statesGenerator attr.States}
+    </Configuration>
+  '';
 
   # TODO: more available in src/lpmd_config.c, lacking documentation
   perStateSubmodule = {
@@ -350,7 +344,7 @@ let
           ];
       };
 
-      HfiLpmEnable = {
+      HfiLpmEnable = lib.mkOption {
         default = false;
         description = ''
           Specifies if the HFI monitor can capture HFI hints for LPM.
@@ -359,7 +353,7 @@ let
         type = with lib.types; bool;
       };
 
-      HfiSuvEnable = {
+      HfiSuvEnable = lib.mkOption {
         default = false;
         description = ''
           Specifies if the HFI monitor can capture HFI hints for survivability mode.
@@ -433,7 +427,7 @@ let
 
       # TODO: it is unclear if disabling requires both to be set to '0' or not.
       EntryHystMS = lib.mkOption {
-        default = "0";
+        default = 0;
         description = ''
           Specifies a hysteresis threshold (in ms) when the system is in LPM.
           When the previous average time **stayed in** LPM is lower than this
@@ -447,7 +441,7 @@ let
       };
 
       ExitHystMS = lib.mkOption {
-        default = "0";
+        default = 0;
         description = ''
           Specifies a hysteresis threshold (in ms) when the system is not in LPM.
           When the previous average time **stayed out of** LPM is lower than this
@@ -470,7 +464,7 @@ let
           to **255** (favor power).
         '';
 
-        type = with lib.types; nullOr numbers.between 0 255;
+        type = with lib.types; nullOr (numbers.between 0 255);
       };
 
       IgnoreITMT = lib.mkOption {
@@ -500,7 +494,7 @@ in
   options = {
     services.intel-lpmd = {
       enable = lib.mkEnableOption "Intel's low power mode daemon";
-      package = lib.mkPackageOption pkgs "intel-lpmd";
+      package = lib.mkPackageOption pkgs "intel-lpmd" { };
 
       settings = lib.mkOption {
         default = { };
@@ -509,7 +503,7 @@ in
           See `man 5 intel_lpmd_config.xml` for available configuration.
         '';
 
-        type = with lib.types; attrsOf (submodule xmlSubmodule);
+        type = with lib.types; submodule xmlSubmodule;
       };
     };
   };
@@ -517,11 +511,33 @@ in
   ###### implementation
   config = lib.mkIf cfg.enable {
     environment = {
-      etc."/etc/intel_lpmd/intel_lpmd_config.xml".text = xmlGenerator cfg;
+      etc."intel_lpmd/intel_lpmd_config.xml".text = xmlGenerator (cfg.settings);
       systemPackages = [ cfg.package ];
     };
 
     services.dbus.packages = [ cfg.package ];
     systemd.packages = [ cfg.package ];
+
+    systemd.services.intel-lpmd = {
+      description = "Intel Linux Energy Optimizer (lpmd) Service";
+      wantedBy = [ "multi-user.target" ];
+      after = [ "dbus.service" ];
+      before = [ "shutdown.target" ];
+      aliases = [ "org.freedesktop.intel_lpmd.service" ];
+
+      # match upstream unit
+      serviceConfig = {
+        Type = "dbus";
+        BusName = "org.freedesktop.intel_lpmd";
+        ExecStart = "${pkgs.intel-lpmd}/bin/intel_lpmd --systemd --dbus-enable --loglevel=info";
+        Restart = "on-failure";
+        RestartSec = "30";
+        SuccessExitStatus = "2";
+        PrivateTmp = "yes";
+      };
+
+      startLimitBurst = 5;
+      startLimitIntervalSec = 200;
+    };
   };
 }
