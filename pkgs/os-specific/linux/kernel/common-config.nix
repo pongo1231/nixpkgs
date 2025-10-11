@@ -549,7 +549,7 @@ let
         DRM_AMD_ISP = whenAtLeast "6.11" yes;
 
         # Enable new firmware (and by extension NVK) for compatible hardware on Nouveau
-        DRM_NOUVEAU_GSP_DEFAULT = whenAtLeast "6.8" yes;
+        #DRM_NOUVEAU_GSP_DEFAULT = whenAtLeast "6.8" yes;
 
         # Enable Nouveau shared virtual memory (used by OpenCL)
         DEVICE_PRIVATE = whenHasDevicePrivate yes;
@@ -568,9 +568,9 @@ let
         DRM_I915_GVT = yes;
         DRM_I915_GVT_KVMGT = module;
         # Enable Hyper-V Synthetic DRM Driver
-        DRM_HYPERV = whenAtLeast "5.14" module;
+        #DRM_HYPERV = whenAtLeast "5.14" module;
         # And disable the legacy framebuffer driver when we have the new one
-        FB_HYPERV = whenAtLeast "5.14" no;
+        #FB_HYPERV = whenAtLeast "5.14" no;
       }
       // lib.optionalAttrs (stdenv.hostPlatform.system == "aarch64-linux") {
         # enable HDMI-CEC on RPi boards
@@ -682,8 +682,8 @@ let
       EXT2_FS_POSIX_ACL = yes;
       EXT2_FS_SECURITY = yes;
 
-      EXT3_FS_POSIX_ACL = yes;
-      EXT3_FS_SECURITY = yes;
+      #EXT3_FS_POSIX_ACL = yes;
+      #EXT3_FS_SECURITY = yes;
 
       EXT4_FS_POSIX_ACL = yes;
       EXT4_FS_SECURITY = yes;
@@ -1018,7 +1018,7 @@ let
       ZRAM_DEF_COMP_ZSTD = whenAtLeast "5.11" yes;
       ZSWAP = option yes;
       ZSWAP_COMPRESSOR_DEFAULT_ZSTD = whenAtLeast "5.7" (lib.mkOptionDefault yes);
-      ZPOOL = yes;
+      #ZPOOL = yes;
       ZSMALLOC = option yes;
     };
 
