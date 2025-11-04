@@ -124,6 +124,9 @@ in
           # Ensure that hashtable can be locked into memory
           LimitMEMLOCK = "${toString fs.hashTableSizeMB}M";
           MemoryMin = "${toString fs.hashTableSizeMB}M";
+
+          CPUWeight = "idle";
+          IOWeight = 1;
         };
         unitConfig.RequiresMountsFor = lib.mkIf (lib.hasPrefix "/" fs.spec) fs.spec;
         wantedBy = [ "multi-user.target" ];
