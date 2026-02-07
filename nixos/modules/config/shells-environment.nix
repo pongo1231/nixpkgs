@@ -273,7 +273,7 @@ in
       mkdir -p /bin
       chmod 0755 /bin
       ln -sfn "${cfg.binsh}" /bin/.sh.tmp
-      mv /bin/.sh.tmp /bin/sh # atomically replace /bin/sh
+      mv -f /bin/.sh.tmp /bin/sh # atomically replace /bin/sh
     '';
 
   };
