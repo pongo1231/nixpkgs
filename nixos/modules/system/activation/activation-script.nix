@@ -290,7 +290,7 @@ in
           mkdir -p /usr/bin
           chmod 0755 /usr/bin
           ln -sfn ${config.environment.usrbinenv} /usr/bin/.env.tmp
-          mv /usr/bin/.env.tmp /usr/bin/env # atomically replace /usr/bin/env
+          mv -f /usr/bin/.env.tmp /usr/bin/env # atomically replace /usr/bin/env
         ''
       else
         ''
