@@ -73,6 +73,7 @@ in
 
     environment = {
       systemPackages = [ cfg.package ] ++ cfg.schedsPackages;
+    } // lib.optionalAttrs (cfg.config != {}) {
       etc."scx_loader.toml".source = configFile;
     };
 
