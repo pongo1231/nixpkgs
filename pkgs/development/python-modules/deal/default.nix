@@ -30,6 +30,19 @@ buildPythonPackage rec {
     hash = "sha256-nLZ06Xfa9Q+Saf8qPXG1Xo6y6oO6kifhfK/gryZ6q90=";
   };
 
+  # docstring-parser 0.18.0 stopped shipping the `docstring_parser/tests`
+  # subpackage (see its pyproject `tool.hatch.build.targets.wheel.exclude`).
+  # This test module expands that directory into parametrization while being
+  # imported, so collection now fails with FileNotFoundError. Skip only that
+  # parametrization when the directory is absent.
+  # Remove again once deal guards the lookup itself upstream.
+  postPatch = ''
+    substituteInPlace tests/test_linter/test_extractors/test_exceptions.py \
+      --replace-fail \
+        "    if astroid is None:" \
+        "    if astroid is None or not root.is_dir():"
+  '';
+
   build-system = [ flit-core ];
 
   dependencies = [
